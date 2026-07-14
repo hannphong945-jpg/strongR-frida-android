@@ -50,3 +50,4 @@ Follow [FRIDA](https://github.com/frida/frida) upstream to automatic patch and b
 <img src="img/2.png" width = "180" height = "240" alt="" align=center />
 
 <img src="img/3.png" width = "180" height = "240" alt="" align=center />
+1
