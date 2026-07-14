@@ -91,11 +91,10 @@ jobs:
         distribution: "temurin"
         java-version: "17"
 
-    - name: Setup Android NDK
+   - name: Setup Android NDK
       id: setup-ndk
-      uses: nttld/setup-ndk@v1.0.6
-      with:
-        ndk-version: r29
+      run: |
+        echo "ndk-path=$ANDROID_NDK_LATEST_HOME" >> $GITHUB_OUTPUT
     
     - name: Set up Python 3.9
       uses: actions/setup-python@v5.1.0
