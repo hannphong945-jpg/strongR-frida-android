@@ -113,25 +113,25 @@ jobs:
       run: |
         git config --global user.name "github-actions"
         git config --global user.email "github-actions@github.com"
+        
+        # Tải trực tiếp thư mục chứa Patch gốc của tác giả hzzheyang
+        git clone https://github.com/hzzheyang/strongR-frida-android.git Patchs
+        
         export ANDROID_NDK_ROOT=${{ steps.setup-ndk.outputs.ndk-path }}
         git clone --recurse-submodules https://github.com/frida/frida
+        
         cd frida
         git checkout ${{ needs.check_version.outputs.FRIDA_VERSION }}
         git submodule update --recursive
-        cd ..
         
-        # Tải trực tiếp kho chứa Patch công khai mà không dùng secret TOKEN
-        git clone https://github.com/hzzheyang/strongR-frida-android.git Patchs
-        
-        # Áp dụng các file patch
-        cd frida
-        for path in ../Patchs/Patchs/strongR-frida/*
+        # Áp dụng các file vá lỗi đúng đường dẫn
+        for path in ../Patchs/strongR-frida/*
         do
           if [ -d "$path" ]; then
             name=$(basename $path)
             echo "Applying patches for subprojects/$name"
             cd subprojects/$name
-            git am ../../../Patchs/Patchs/strongR-frida/$name/*.patch
+            git am ../../../Patchs/strongR-frida/$name/*.patch
             cd ../..
           fi
         done
