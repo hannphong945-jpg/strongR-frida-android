@@ -118,15 +118,20 @@ jobs:
         cd frida
         git checkout ${{ needs.check_version.outputs.FRIDA_VERSION }}
         git submodule update --recursive
+        cd ..
         
-        # Áp dụng trực tiếp các file patch từ repository hiện tại
-        for path in ../Patchs/strongR-frida/*
+        # Tải trực tiếp kho chứa Patch công khai mà không dùng secret TOKEN
+        git clone https://github.com/hzzheyang/strongR-frida-android.git Patchs
+        
+        # Áp dụng các file patch
+        cd frida
+        for path in ../Patchs/Patchs/strongR-frida/*
         do
           if [ -d "$path" ]; then
             name=$(basename $path)
             echo "Applying patches for subprojects/$name"
             cd subprojects/$name
-            git am ../../../Patchs/strongR-frida/$name/*.patch
+            git am ../../../Patchs/Patchs/strongR-frida/$name/*.patch
             cd ../..
           fi
         done
