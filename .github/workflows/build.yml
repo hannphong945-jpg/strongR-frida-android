@@ -36,8 +36,8 @@ jobs:
             try {
               const releaseVersion = '${{ steps.pullFridaLatestRelease.outputs.FRIDA_VERSION }}'
               const releaseResponse = await github.repos.getReleaseByTag({
-                owner: '${{ secrets.GIT_OWNER }}',
-                repo: '${{ secrets.GIT_REPO }}',
+                owner: context.repo.owner,
+                repo: context.repo.repo,
                 tag: releaseVersion
               });
               const {
@@ -111,21 +111,24 @@ jobs:
     - name: build frida for Android
       shell: bash
       run: |
-        git config --global user.name "${{ secrets.GIT_NAME }}"
-        git config --global user.email "${{ secrets.GIT_EMAIL }}"
-        git clone ${{ secrets.PATCH_REPO }}
+        git config --global user.name "github-actions"
+        git config --global user.email "github-actions@github.com"
         export ANDROID_NDK_ROOT=${{ steps.setup-ndk.outputs.ndk-path }}
         git clone --recurse-submodules https://github.com/frida/frida
         cd frida
+        git checkout ${{ needs.check_version.outputs.FRIDA_VERSION }}
+        git submodule update --recursive
+        
+        # Áp dụng trực tiếp các file patch từ repository hiện tại
         for path in ../Patchs/strongR-frida/*
         do
-          name=$(basename $path)
-          real=$(realpath $path)
-          echo "Apply patches in $real to frida/subprojects/$name"
-          cd subprojects/$name
-          git am ../../../Patchs/strongR-frida/$name/*.patch
-          cd ../..
-          echo $i
+          if [ -d "$path" ]; then
+            name=$(basename $path)
+            echo "Applying patches for subprojects/$name"
+            cd subprojects/$name
+            git am ../../../Patchs/strongR-frida/$name/*.patch
+            cd ../..
+          fi
         done
         cd ..
         
@@ -149,8 +152,8 @@ jobs:
           try {
             const releaseVersion = '${{ needs.check_version.outputs.FRIDA_VERSION }}'
             const releaseResponse = await github.repos.getReleaseByTag({
-              owner: '${{ secrets.GIT_OWNER }}',
-              repo: '${{ secrets.GIT_REPO }}',
+              owner: context.repo.owner,
+              repo: context.repo.repo,
               tag: releaseVersion
             })
             const {
